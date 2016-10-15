@@ -2569,7 +2569,6 @@ cfiscsi_datamove_in(union ctl_io *io)
 		KASSERT(response->ip_data_len > 0, ("sending empty Data-In"));
 		cfiscsi_pdu_queue(response);
 	}
-
 	io->scsiio.be_move_done(io);
 }
 
@@ -2604,8 +2603,9 @@ cfiscsi_datamove_out(union ctl_io *io)
 	 * Report write underflow as error since CTL and backends don't
 	 * really support it, and SCSI does not tell how to do it right.
 	 */
-	expected_len = ntohl(bhssc->bhssc_expected_data_transfer_length);
-	if (io->scsiio.kern_rel_offset + io->scsiio.kern_data_len >
+	io->scsiio.kern_data_len=expected_len = ntohl(bhssc->bhssc_expected_data_transfer_length);
+		
+	if (io->scsiio.kern_rel_offset + io->scsiio.kern_data_len <
 	    expected_len) {
 		io->scsiio.io_hdr.port_status = 43;
 		io->scsiio.be_move_done(io);
